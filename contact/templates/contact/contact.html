@@ -1,17 +1,45 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Contact Us{% endblock %}
 
 {% block content %}
-<div style="max-width: 900px; margin: 80px auto; padding: 30px;">
-    <h1>Contact Us</h1>
+<section class="page-header page-header--center">
+    <div class="container">
+        <p class="eyebrow">Get in touch</p>
+        <h1>Contact us</h1>
+        <p>Questions about a reservation, group bookings or events? We're happy to help.</p>
+    </div>
+</section>
 
-    <p>
-        Have questions about your stay? Send us a message and our hotel team
-        will assist you.
-    </p>
+<section class="section">
+    <div class="container two-col">
+        <form method="post" class="panel" novalidate>
+            {% csrf_token %}
+            <h2 class="panel__title">Send us a message</h2>
+            {% include "includes/form_errors.html" %}
+            <div class="form-grid">
+                {% include "includes/field.html" with field=form.name %}
+                {% include "includes/field.html" with field=form.email %}
+                {% include "includes/field.html" with field=form.phone %}
+                {% include "includes/field.html" with field=form.subject %}
+                {% include "includes/field.html" with field=form.message extra_class="span-2" %}
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn--lg">Send message</button>
+            </div>
+        </form>
 
-    <p>
-        Email: reservations@grandhaven.com<br>
-        Phone: +63 912 345 6789
-    </p>
-</div>
+        <aside class="panel">
+            <h2 class="panel__title">Hotel information</h2>
+            <ul class="summary">
+                <li><span>Address</span><strong>{{ site.address }}</strong></li>
+                <li><span>Phone</span><strong>{{ site.phone }}</strong></li>
+                <li><span>Email</span><strong>{{ site.email }}</strong></li>
+                <li><span>Front desk</span><strong>Open 24 hours</strong></li>
+                <li><span>Check-in</span><strong>from 2:00 PM</strong></li>
+                <li><span>Check-out</span><strong>until 12:00 NN</strong></li>
+            </ul>
+        </aside>
+    </div>
+</section>
 {% endblock %}
