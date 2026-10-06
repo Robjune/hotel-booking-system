@@ -1,15 +1,15 @@
-from django.shortcuts import render
 from django.db.models import Q
 
-from .models import Room
 
-
-def search_rooms(request):
-    rooms = Room.objects.all()
+def search_rooms(request, queryset):
+    rooms = queryset
 
     query = request.GET.get('q', '').strip()
     room_type = request.GET.get('room_type', '').strip()
     capacity = request.GET.get('capacity', '').strip()
+    guests = request.GET.get('guests', '').strip()
+    min_price = request.GET.get('min_price', '').strip()
+    max_price = request.GET.get('max_price', '').strip()
 
     if query:
         rooms = rooms.filter(
@@ -27,11 +27,31 @@ def search_rooms(request):
         except ValueError:
             pass
 
-    return render(
-        request,
-        'rooms/room_list.html',
-        {
-            'rooms': rooms,
-            'query': query,
-        }
-    )
+    if guests:
+        try:
+            rooms = rooms.filter(capacity__gte=int(guests))
+        except ValueError:
+            pass
+
+    if min_price:
+        try:
+            rooms = rooms.filter(price_per_night__gte=float(min_price))
+        except ValueError:
+            pass
+
+    if max_price:
+        try:
+            rooms = rooms.filter(price_per_night__lte=float(max_price))
+        except ValueError:
+            pass
+
+    search_context = {
+        'query': query,
+        'selected_room_type': room_type,
+        'selected_capacity': capacity,
+        'selected_guests': guests,
+        'min_price': min_price,
+        'max_price': max_price,
+    }
+
+    return rooms, search_context

@@ -1,0 +1,86 @@
+<form method="get" action="" style="margin-bottom: 32px;">
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+        align-items: end;
+    ">
+
+        <div>
+            <label for="q">Search</label>
+            <input
+                type="text"
+                id="q"
+                name="q"
+                value="{{ query }}"
+                placeholder="Room number or type"
+                style="width: 100%; padding: 10px;"
+            >
+        </div>
+
+        <div>
+            <label for="room_type">Room Type</label>
+            <input
+                type="text"
+                id="room_type"
+                name="room_type"
+                value="{{ selected_room_type }}"
+                placeholder="Deluxe, Suite..."
+                style="width: 100%; padding: 10px;"
+            >
+        </div>
+
+        <div>
+            <label for="guests">Guests</label>
+            <input
+                type="number"
+                id="guests"
+                name="guests"
+                value="{{ selected_guests }}"
+                min="1"
+                placeholder="2"
+                style="width: 100%; padding: 10px;"
+            >
+        </div>
+
+        <div>
+            <label for="min_price">Min Price</label>
+            <input
+                type="number"
+                id="min_price"
+                name="min_price"
+                value="{{ min_price }}"
+                min="0"
+                placeholder="0"
+                style="width: 100%; padding: 10px;"
+            >
+        </div>
+
+        <div>
+            <label for="max_price">Max Price</label>
+            <input
+                type="number"
+                id="max_price"
+                name="max_price"
+                value="{{ max_price }}"
+                min="0"
+                placeholder="10000"
+                style="width: 100%; padding: 10px;"
+            >
+        </div>
+
+        <div>
+            <button
+                type="submit"
+                style="
+                    width: 100%;
+                    padding: 12px;
+                    cursor: pointer;
+                "
+            >
+                Search Rooms
+            </button>
+        </div>
+
+    </div>
+</form>
