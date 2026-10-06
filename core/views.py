@@ -10,7 +10,10 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from bookings.models import Booking
-from contact.models import ContactMessage
+try:
+    from contact.models import ContactMessage
+except ImportError:
+    ContactMessage = None
 from rooms.models import Room
 
 
@@ -57,7 +60,7 @@ def dashboard(request):
             'customers': User.objects.filter(is_staff=False).count(),
             'revenue': active.exclude(status=Booking.Status.PENDING)
                              .aggregate(total=Sum('total_price'))['total'] or 0,
-            'unread_messages': ContactMessage.objects.filter(is_read=False).count(),
+            'unread_messages': ContactMessage.objects.count() if ContactMessage else 0(),
         },
         'pending_bookings': bookings.filter(status=Booking.Status.PENDING).order_by('check_in')[:8],
         'arrivals': active.filter(check_in=today),
