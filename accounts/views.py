@@ -1,32 +1,97 @@
-from django.contrib.auth import logout
-from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 
-
-def login_view(request):
-    return HttpResponse("""
-        <h1>Login</h1>
-        <p>Login feature is being completed.</p>
-        <a href="/">Back to Home</a>
-    """)
+from .forms import RegisterForm
 
 
 def register_view(request):
-    return HttpResponse("""
-        <h1>Register</h1>
-        <p>Registration feature is being completed.</p>
-        <a href="/">Back to Home</a>
-    """)
+    if request.user.is_authenticated:
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+
+            messages.success(
+                request,
+                'Account created successfully.'
+            )
+
+            return redirect('accounts:dashboard')
+    else:
+        form = RegisterForm()
+
+    return render(
+        request,
+        'accounts/register.html',
+        {
+            'form': form
+        }
+    )
 
 
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+            login(request, user)
+
+            messages.success(
+                request,
+                'You are now logged in.'
+            )
+
+            return redirect('accounts:dashboard')
+
+        messages.error(
+            request,
+            'Invalid username or password.'
+        )
+
+    return render(
+        request,
+        'accounts/login.html'
+    )
+
+
+@login_required
 def dashboard(request):
-    return HttpResponse("""
-        <h1>Customer Dashboard</h1>
-        <p>Customer account feature is being completed.</p>
-        <a href="/">Back to Home</a>
-    """)
+    return render(
+        request,
+        'accounts/dashboard.html'
+    )
+
+
+@login_required
+def profile(request):
+    return render(
+        request,
+        'accounts/profile.html'
+    )
 
 
 def logout_view(request):
     logout(request)
-    return redirect('/')
+
+    messages.success(
+        request,
+        'You have been logged out.'
+    )
+
+    return redirect('core:home')
