@@ -15,4 +15,13 @@ def site_info(request):
 
 
 def unread_messages(request):
-    return 0
+    user = getattr(request, 'user', None)
+
+    if not (user and user.is_staff):
+        return 0
+
+    try:
+        from contact.models import ContactMessage
+        return ContactMessage.objects.filter(is_read=False).count()
+    except Exception:
+        return 0
