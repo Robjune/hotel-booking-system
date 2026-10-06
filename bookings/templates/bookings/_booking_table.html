@@ -1,0 +1,20 @@
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+            <tr><th>Reference</th><th>Room</th><th>Check-in</th><th>Check-out</th><th>Nights</th><th>Total</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+        {% for b in bookings %}
+            <tr>
+                <td><a href="{{ b.get_absolute_url }}">{{ b.reference }}</a></td>
+                <td>Room {{ b.room.room_number }} <span class="small muted">· {{ b.room.get_room_type_display }}</span></td>
+                <td>{{ b.check_in|date:"M j, Y" }}</td>
+                <td>{{ b.check_out|date:"M j, Y" }}</td>
+                <td>{{ b.nights }}</td>
+                <td>₱{{ b.total_price|floatformat:"2g" }}</td>
+                <td><span class="status status--{{ b.status }}">{{ b.get_status_display }}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
