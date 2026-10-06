@@ -1,0 +1,107 @@
+{% extends "rooms/layout.html" %}
+
+{% block title %}Room {{ room.room_number }} – {{ room.get_room_type_display }}{% endblock %}
+
+{% block content %}
+<section class="rm-section rm-section--tight">
+    <div class="container">
+        <nav class="rm-breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'rooms:room_list' %}">Rooms</a>
+            <span>/</span>
+            <a href="{% url 'rooms:room_list' %}?type={{ room.room_type }}">{{ room.get_room_type_display }}</a>
+            <span>/</span>
+            <span>Room {{ room.room_number }}</span>
+        </nav>
+
+        <div class="rm-detail">
+            <div class="rm-detail__media">
+                <div class="rm-detail__main">
+                    {% if room.image %}
+                        <img id="rm-main-img" src="{{ room.image.url }}" alt="Room {{ room.room_number }}">
+                    {% elif gallery %}
+                        <img id="rm-main-img" src="{{ gallery.0.image.url }}" alt="Room {{ room.room_number }}">
+                    {% else %}
+                        <div class="rm-placeholder rm-placeholder--{{ room.room_type }} rm-placeholder--large">
+                            <span>{{ room.get_room_type_display }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if gallery %}
+                    <div class="rm-thumbs">
+                        {% if room.image %}
+                            <button type="button" class="rm-thumb is-active" data-src="{{ room.image.url }}">
+                                <img src="{{ room.image.url }}" alt="Main photo">
+                            </button>
+                        {% endif %}
+                        {% for photo in gallery %}
+                            <button type="button" class="rm-thumb{% if not room.image and forloop.first %} is-active{% endif %}" data-src="{{ photo.image.url }}">
+                                <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:'Room photo' }}">
+                            </button>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="rm-detail__info">
+                <p class="rm-eyebrow">{{ room.get_room_type_display }}</p>
+                <h1 class="rm-detail__title">Room {{ room.room_number }}</h1>
+
+                <div class="rm-facts">
+                    <div class="rm-fact"><span>Price</span><strong>₱{{ room.price_per_night|floatformat:"2g" }}</strong><small>per night</small></div>
+                    <div class="rm-fact"><span>Capacity</span><strong>{{ room.capacity }}</strong><small>guest{{ room.capacity|pluralize }}</small></div>
+                    <div class="rm-fact"><span>Status</span>
+                        <strong class="{% if room.is_available %}rm-text-ok{% else %}rm-text-no{% endif %}">{% if room.is_available %}Available{% else %}Unavailable{% endif %}</strong>
+                        <small>{% if room.is_available %}ready to book{% else %}not bookable now{% endif %}</small>
+                    </div>
+                </div>
+
+                <div class="rm-prose">{{ room.description|linebreaks }}</div>
+
+                {% if room.amenity_list %}
+                    <h2 class="rm-subtitle">Amenities</h2>
+                    <ul class="rm-amenities">
+                        {% for amenity in room.amenity_list %}<li>{{ amenity }}</li>{% endfor %}
+                    </ul>
+                {% endif %}
+
+                <div class="rm-book">
+                    {% if room.is_available %}
+                        <a href="{% url 'bookings:create' room.pk %}{% if booking_params %}?{{ booking_params }}{% endif %}" class="rm-btn rm-btn--lg">Book this room</a>
+                    {% else %}
+                        <span class="rm-btn rm-btn--lg is-disabled" aria-disabled="true">Currently unavailable</span>
+                    {% endif %}
+                    <a href="{% url 'rooms:room_list' %}" class="rm-link">&larr; Back to all rooms</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if similar_rooms %}
+<section class="rm-section rm-section--alt">
+    <div class="container">
+        <h2 class="rm-section__title">Similar rooms</h2>
+        <div class="rm-grid">
+            {% for room in similar_rooms %}
+                {% include "rooms/_room_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.rm-thumb').forEach(function (thumb) {
+        thumb.addEventListener('click', function () {
+            var main = document.getElementById('rm-main-img');
+            if (!main) return;
+            main.src = thumb.dataset.src;
+            document.querySelectorAll('.rm-thumb').forEach(function (t) { t.classList.remove('is-active'); });
+            thumb.classList.add('is-active');
+        });
+    });
+</script>
+{% endblock %}

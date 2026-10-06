@@ -1,0 +1,59 @@
+{% extends "rooms/layout.html" %}
+
+{% block title %}{% if is_filtered %}Search results{% else %}{{ selected_type_label }}{% endif %}{% endblock %}
+
+{% block content %}
+<section class="rm-hero">
+    <div class="container">
+        <p class="eyebrow">Stay with us</p>
+        <h1>Rooms &amp; Suites</h1>
+        <p class="rm-hero__lead">Thoughtfully designed spaces for every kind of stay, from quick business trips to family getaways.</p>
+    </div>
+</section>
+
+<section class="rm-section">
+    <div class="container">
+        {% include "rooms/_search_form.html" %}
+
+        {% if not is_filtered %}
+        <nav class="rm-tabs" aria-label="Room types" style="margin-top: 32px;">
+            <a href="{% url 'rooms:room_list' %}" class="rm-tab{% if not selected_type %} is-active{% endif %}">All Rooms</a>
+            {% for value, label in room_types %}
+                <a href="?type={{ value }}" class="rm-tab{% if selected_type == value %} is-active{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </nav>
+        {% endif %}
+
+        <div class="rm-results-bar">
+            <p class="rm-count">{{ rooms|length }} room{{ rooms|length|pluralize }} found</p>
+            {% if is_filtered %}<a href="{% url 'rooms:room_list' %}" class="link small">Clear all filters</a>{% endif %}
+        </div>
+
+        {% if dates_chosen %}
+            <p class="rm-dates-note">
+                Showing rooms free from <strong>{{ form.cleaned_data.check_in|date:"M j, Y" }}</strong>
+                to <strong>{{ form.cleaned_data.check_out|date:"M j, Y" }}</strong>.
+                Your dates will be filled in when you book.
+            </p>
+        {% endif %}
+
+        {% if rooms %}
+            <div class="rm-grid">
+                {% for room in rooms %}
+                    {% include "rooms/_room_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rm-empty">
+                <h2>No rooms found</h2>
+                {% if is_filtered or selected_type %}
+                    <p>No rooms match your search. Try different dates, fewer guests or a wider price range.</p>
+                    <a href="{% url 'rooms:room_list' %}" class="btn">See all rooms</a>
+                {% else %}
+                    <p>There are no rooms listed right now. Please check back soon.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

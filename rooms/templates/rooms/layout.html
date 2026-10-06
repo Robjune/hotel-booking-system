@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load static %}
+{% comment %}
+  Shared wrapper for the Rooms pages: adds the room stylesheet on top of base.html.
+{% endcomment %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'rooms/css/rooms.css' %}">{% endblock %}
