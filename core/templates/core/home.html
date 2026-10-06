@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Luxury Hotel &amp; Online Booking{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'rooms/css/rooms.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero__inner">
+        <div class="hero__copy">
+            <p class="eyebrow">Welcome to {{ site.name }} {{ site.tagline }}</p>
+            <h1>Where every stay feels like coming home.</h1>
+            <p class="hero__lead">Elegant rooms, warm hospitality and effortless online booking — your perfect getaway is just a few clicks away.</p>
+            <div class="hero__actions">
+                <a href="{% url 'rooms:room_list' %}" class="btn btn--lg">Explore rooms</a>
+                <a href="{% url 'contact:contact' %}" class="btn btn--lg btn--ghost-light">Contact us</a>
+            </div>
+        </div>
+
+        <form method="get" action="{% url 'rooms:room_list' %}" class="booking-widget" aria-label="Check availability">
+            <h2>Check availability</h2>
+            <div class="booking-widget__grid">
+                <div class="field">
+                    <label for="hw-check-in">Check-in</label>
+                    <input type="date" id="hw-check-in" name="check_in" value="{{ default_check_in|date:'Y-m-d' }}" min="{% now 'Y-m-d' %}" required>
+                </div>
+                <div class="field">
+                    <label for="hw-check-out">Check-out</label>
+                    <input type="date" id="hw-check-out" name="check_out" value="{{ default_check_out|date:'Y-m-d' }}" min="{{ default_check_in|date:'Y-m-d' }}" required>
+                </div>
+                <div class="field">
+                    <label for="hw-guests">Guests</label>
+                    <select id="hw-guests" name="guests">
+                        {% for n in "123456" %}<option value="{{ n }}"{% if n == "2" %} selected{% endif %}>{{ n }} guest{{ n|pluralize }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="hw-type">Room type</label>
+                    <select id="hw-type" name="type">
+                        <option value="">Any type</option>
+                        {% for value, label in room_type_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn--block btn--lg">Search available rooms</button>
+            <p class="booking-widget__note">Best rates guaranteed · Free cancellation before check-in</p>
+        </form>
+    </div>
+</section>
+
+<section class="highlights">
+    <div class="container highlights__grid">
+        <div><strong>24/7</strong><span>Front desk &amp; concierge</span></div>
+        <div><strong>Free</strong><span>High-speed Wi-Fi</span></div>
+        <div><strong>4.8 ★</strong><span>Average guest rating</span></div>
+        <div><strong>5 min</strong><span>From the city centre</span></div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section__head">
+            <p class="eyebrow">Our accommodations</p>
+            <h2>Featured rooms &amp; suites</h2>
+            <p>Hand-picked favourites from our collection, each designed for rest and comfort.</p>
+        </div>
+        {% if featured_rooms %}
+            <div class="rm-grid">
+                {% for room in featured_rooms %}
+                    {% include "rooms/_room_card.html" %}
+                {% endfor %}
+            </div>
+            <p class="center-cta"><a href="{% url 'rooms:room_list' %}" class="btn btn--outline">View all rooms</a></p>
+        {% else %}
+            <p class="empty-note">Rooms will appear here once they are added in the admin panel.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% if room_types %}
+<section class="section section--white">
+    <div class="container">
+        <div class="section__head">
+            <p class="eyebrow">Find your fit</p>
+            <h2>Browse by room type</h2>
+        </div>
+        <div class="categories">
+            {% for type in room_types %}
+                <a href="{% url 'rooms:room_list' %}?type={{ type.value }}" class="category rm-placeholder--{{ type.value }}">
+                    <span class="category__name">{{ type.label }}</span>
+                    <span class="category__count">{{ type.count }} room{{ type.count|pluralize }} available &rarr;</span>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section">
+    <div class="container">
+        <div class="section__head">
+            <p class="eyebrow">Why stay with us</p>
+            <h2>Comfort in every detail</h2>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <span class="feature__icon" aria-hidden="true">🛏️</span>
+                <h3>Restful rooms</h3>
+                <p>Premium mattresses, blackout curtains and soundproofed walls for a perfect night's sleep.</p>
+            </div>
+            <div class="feature">
+                <span class="feature__icon" aria-hidden="true">🍳</span>
+                <h3>Breakfast &amp; dining</h3>
+                <p>Start your day with a Filipino and international breakfast buffet at our garden restaurant.</p>
+            </div>
+            <div class="feature">
+                <span class="feature__icon" aria-hidden="true">🏊</span>
+                <h3>Pool &amp; wellness</h3>
+                <p>Unwind at the outdoor pool, fitness centre and spa — open daily for all guests.</p>
+            </div>
+            <div class="feature">
+                <span class="feature__icon" aria-hidden="true">📅</span>
+                <h3>Easy online booking</h3>
+                <p>Real-time availability, instant reservation reference and free cancellation before check-in.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--white">
+    <div class="container">
+        <div class="section__head">
+            <p class="eyebrow">Guest stories</p>
+            <h2>What our guests say</h2>
+        </div>
+        <div class="testimonials">
+            <figure class="testimonial">
+                <blockquote>“Spotless rooms, friendly staff and booking took less than two minutes. We'll definitely be back.”</blockquote>
+                <figcaption><strong>Maria S.</strong> · Family Room</figcaption>
+            </figure>
+            <figure class="testimonial">
+                <blockquote>“The suite was stunning and the city view at night was unforgettable. Worth every peso.”</blockquote>
+                <figcaption><strong>James R.</strong> · Suite</figcaption>
+            </figure>
+            <figure class="testimonial">
+                <blockquote>“Perfect for business trips — quiet, fast Wi-Fi and a great breakfast to start the day.”</blockquote>
+                <figcaption><strong>Angela T.</strong> · Deluxe Room</figcaption>
+            </figure>
+        </div>
+    </div>
+</section>
+
+<section class="cta-band">
+    <div class="container cta-band__inner">
+        <div>
+            <h2>Ready for your next stay?</h2>
+            <p>Create a free account to book faster and keep track of all your reservations.</p>
+        </div>
+        <div class="cta-band__actions">
+            {% if user.is_authenticated %}
+                <a href="{% url 'rooms:room_list' %}" class="btn btn--lg">Book a room</a>
+            {% else %}
+                <a href="{% url 'accounts:register' %}" class="btn btn--lg">Create an account</a>
+                <a href="{% url 'rooms:room_list' %}" class="btn btn--lg btn--ghost-light">Browse rooms</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

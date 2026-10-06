@@ -1,0 +1,110 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ site.name }} {{ site.tagline }} – book elegant rooms and suites online.">
+    <title>{% block title %}Welcome{% endblock %} | {{ site.name }} {{ site.tagline }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% with url_name=request.resolver_match.url_name namespace=request.resolver_match.namespace %}
+    <header class="site-nav">
+        <div class="container site-nav__inner">
+            <a href="{% url 'core:home' %}" class="brand">Grand<span>Haven</span></a>
+
+            <button class="site-nav__toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="site-nav-links" data-nav-toggle>
+                <span></span><span></span><span></span>
+            </button>
+
+            <nav id="site-nav-links" class="site-nav__links">
+                <a href="{% url 'core:home' %}" class="{% if namespace == 'core' and url_name == 'home' %}is-active{% endif %}">Home</a>
+                <a href="{% url 'rooms:room_list' %}" class="{% if namespace == 'rooms' %}is-active{% endif %}">Rooms</a>
+                <a href="{% url 'contact:contact' %}" class="{% if namespace == 'contact' %}is-active{% endif %}">Contact</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'bookings:my_bookings' %}" class="{% if namespace == 'bookings' %}is-active{% endif %}">My Bookings</a>
+                    {% if user.is_staff %}
+                        <a href="{% url 'core:dashboard' %}" class="{% if url_name == 'dashboard' and namespace == 'core' %}is-active{% endif %}">
+                            Dashboard{% if nav_unread_messages %} <span class="nav-pill">{{ nav_unread_messages }}</span>{% endif %}
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'accounts:dashboard' %}" class="site-nav__account {% if namespace == 'accounts' %}is-active{% endif %}">
+                        <span class="avatar">{{ user.first_name|default:user.username|first|upper }}</span>
+                        {{ user.first_name|default:user.username }}
+                    </a>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="site-nav__logout">
+                        {% csrf_token %}
+                        <button type="submit">Log out</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="{% if url_name == 'login' %}is-active{% endif %}">Log in</a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn--sm">Sign up</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    {% endwith %}
+
+    {% if messages %}
+        <div class="container messages" role="status">
+            {% for message in messages %}
+                <div class="alert alert--{{ message.tags|default:'info' }}">
+                    <span>{{ message }}</span>
+                    <button type="button" class="alert__close" aria-label="Dismiss" data-dismiss>&times;</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container site-footer__grid">
+            <div>
+                <p class="brand">Grand<span>Haven</span></p>
+                <p class="site-footer__text">Refined comfort, warm Filipino hospitality and every detail taken care of — from the moment you book.</p>
+            </div>
+            <div>
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="{% url 'core:home' %}">Home</a></li>
+                    <li><a href="{% url 'rooms:room_list' %}">Rooms &amp; Suites</a></li>
+                    <li><a href="{% url 'contact:contact' %}">Contact us</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Your stay</h4>
+                <ul>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'bookings:my_bookings' %}">My bookings</a></li>
+                        <li><a href="{% url 'accounts:profile' %}">My profile</a></li>
+                    {% else %}
+                        <li><a href="{% url 'accounts:login' %}">Log in</a></li>
+                        <li><a href="{% url 'accounts:register' %}">Create an account</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div>
+                <h4>Contact</h4>
+                <ul class="site-footer__contact">
+                    <li>{{ site.address }}</li>
+                    <li>{{ site.phone }}</li>
+                    <li>{{ site.email }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="container site-footer__bottom">
+            <p>&copy; {% now "Y" %} {{ site.name }} {{ site.tagline }}. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/site.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
