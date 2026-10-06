@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+<section class="error-page">
+    <p class="error-page__code">404</p>
+    <h1>We couldn't find that page</h1>
+    <p class="muted">The page may have moved, or the link might be mistyped.</p>
+    <div class="form-actions" style="justify-content:center;">
+        <a href="{% url 'core:home' %}" class="btn">Back to home</a>
+        <a href="{% url 'rooms:room_list' %}" class="btn btn--outline">Browse rooms</a>
+    </div>
+</section>
+{% endblock %}
