@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <p class="eyebrow">Booking history</p>
+        <h1>My bookings</h1>
+        <p>All your reservations at {{ site.name }} in one place.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="panel">
+            <div class="panel__head">
+                <h2 class="panel__title">Upcoming &amp; current stays</h2>
+                <a href="{% url 'rooms:room_list' %}" class="btn btn--sm">+ New booking</a>
+            </div>
+            {% if upcoming %}
+                {% include "bookings/_booking_table.html" with bookings=upcoming %}
+            {% else %}
+                <p class="empty-note">You have no upcoming stays. <a href="{% url 'rooms:room_list' %}" class="link">Find a room &rarr;</a></p>
+            {% endif %}
+        </div>
+
+        <div class="panel">
+            <h2 class="panel__title">Past &amp; cancelled</h2>
+            {% if past %}
+                {% include "bookings/_booking_table.html" with bookings=past %}
+            {% else %}
+                <p class="empty-note">Nothing here yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

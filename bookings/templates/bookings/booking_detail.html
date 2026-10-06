@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Booking {{ booking.reference }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <p class="eyebrow">Booking confirmation</p>
+        <h1>Reservation {{ booking.reference }}</h1>
+        <p>
+            {% if booking.status == 'pending' %}Thank you! Your request has been received and is waiting for confirmation from our front desk.
+            {% elif booking.status == 'confirmed' %}Your stay is confirmed. We look forward to welcoming you!
+            {% elif booking.status == 'checked_in' %}Enjoy your stay with us!
+            {% elif booking.status == 'completed' %}Thank you for staying with us.
+            {% else %}This booking has been cancelled.{% endif %}
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container two-col">
+        <div class="panel">
+            <div class="panel__head">
+                <h2 class="panel__title">Stay details</h2>
+                <span class="status status--{{ booking.status }}">{{ booking.get_status_display }}</span>
+            </div>
+            <ul class="summary">
+                <li><span>Reference</span><strong>{{ booking.reference }}</strong></li>
+                <li><span>Guest</span><strong>{{ booking.user.get_full_name|default:booking.user.username }}</strong></li>
+                <li><span>Room</span><strong><a href="{{ booking.room.get_absolute_url }}" class="link">Room {{ booking.room.room_number }} · {{ booking.room.get_room_type_display }}</a></strong></li>
+                <li><span>Check-in</span><strong>{{ booking.check_in|date:"l, M j, Y" }}</strong></li>
+                <li><span>Check-out</span><strong>{{ booking.check_out|date:"l, M j, Y" }}</strong></li>
+                <li><span>Guests</span><strong>{{ booking.guests }}</strong></li>
+                {% if booking.special_requests %}<li><span>Special requests</span><strong>{{ booking.special_requests }}</strong></li>{% endif %}
+                <li><span>Booked on</span><strong>{{ booking.created_at|date:"M j, Y g:i A" }}</strong></li>
+            </ul>
+        </div>
+
+        <aside class="panel">
+            <h2 class="panel__title">Payment summary</h2>
+            <ul class="summary">
+                <li><span>₱{{ booking.price_per_night|floatformat:"2g" }} × {{ booking.nights }} night{{ booking.nights|pluralize }}</span><strong>₱{{ booking.total_price|floatformat:"2g" }}</strong></li>
+                <li class="summary__total"><span>Total</span><strong>₱{{ booking.total_price|floatformat:"2g" }}</strong></li>
+            </ul>
+            <p class="small muted">Pay at the front desk on arrival.</p>
+
+            <div class="form-actions" style="flex-direction: column; align-items: stretch;">
+                <a href="{% url 'bookings:my_bookings' %}" class="btn btn--outline">View all my bookings</a>
+                {% if booking.can_cancel and booking.user == user %}
+                    <form method="post" action="{% url 'bookings:cancel' booking.reference %}"
+                          onsubmit="return confirm('Cancel booking {{ booking.reference }}? This cannot be undone.');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn--danger btn--block">Cancel booking</button>
+                    </form>
+                {% endif %}
+                {% if user.is_staff %}
+                    <a href="{% url 'admin:bookings_booking_change' booking.pk %}" class="link small" style="text-align:center;">Edit in admin</a>
+                {% endif %}
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

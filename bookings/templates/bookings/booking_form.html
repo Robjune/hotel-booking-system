@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Book Room {{ room.room_number }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <p class="eyebrow">Reservation</p>
+        <h1>Book Room {{ room.room_number }}</h1>
+        <p>{{ room.get_room_type_display }} · up to {{ room.capacity }} guest{{ room.capacity|pluralize }} · ₱{{ room.price_per_night|floatformat:"2g" }} per night</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container two-col">
+        <form method="post" class="panel" novalidate>
+            {% csrf_token %}
+            <h2 class="panel__title">Your stay</h2>
+            {% include "includes/form_errors.html" %}
+            <div class="form-grid">
+                {% include "includes/field.html" with field=form.check_in %}
+                {% include "includes/field.html" with field=form.check_out %}
+                {% include "includes/field.html" with field=form.guests %}
+                <div class="field">
+                    <label>Guest</label>
+                    <input type="text" value="{{ user.get_full_name|default:user.username }}" disabled>
+                </div>
+                {% include "includes/field.html" with field=form.special_requests extra_class="span-2" %}
+            </div>
+
+            {% if booked_ranges %}
+                <div class="field__help" style="margin-top: 18px;">
+                    <strong>Already reserved dates for this room:</strong>
+                    <ul>
+                        {% for r in booked_ranges %}<li>{{ r.check_in|date:"M j, Y" }} → {{ r.check_out|date:"M j, Y" }}</li>{% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn--lg">Confirm reservation</button>
+                <a href="{{ room.get_absolute_url }}" class="link">Cancel</a>
+            </div>
+        </form>
+
+        <aside class="panel">
+            <h2 class="panel__title">Price summary</h2>
+            <ul class="summary">
+                <li><span>Room</span><strong>{{ room.room_number }} · {{ room.get_room_type_display }}</strong></li>
+                <li><span>Price per night</span><strong>₱{{ room.price_per_night|floatformat:"2g" }}</strong></li>
+                <li><span>Nights</span><strong id="sum-nights">—</strong></li>
+                <li class="summary__total"><span>Total</span><strong id="sum-total">—</strong></li>
+            </ul>
+            <p class="small muted" style="margin: 16px 0 0;">You won't be charged now. Payment is settled at the front desk on arrival. Free cancellation before your check-in date.</p>
+        </aside>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var price = {{ room.price_per_night|stringformat:"s" }};
+        var checkIn = document.getElementById('{{ form.check_in.id_for_label }}');
+        var checkOut = document.getElementById('{{ form.check_out.id_for_label }}');
+        var nightsEl = document.getElementById('sum-nights');
+        var totalEl = document.getElementById('sum-total');
+        var peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' });
+
+        function update() {
+            var a = new Date(checkIn.value), b = new Date(checkOut.value);
+            var nights = Math.round((b - a) / 86400000);
+            if (checkIn.value && checkOut.value && nights > 0) {
+                nightsEl.textContent = nights;
+                totalEl.textContent = peso.format(nights * price);
+            } else {
+                nightsEl.textContent = '—';
+                totalEl.textContent = '—';
+            }
+        }
+        checkIn.addEventListener('change', update);
+        checkOut.addEventListener('change', update);
+        update();
+    })();
+</script>
+{% endblock %}
