@@ -3,7 +3,7 @@ SITE_INFO = {
     'tagline': 'Hotel & Suites',
     'address': 'Angeles City, Pampanga, Philippines',
     'phone': '+63 912 345 6789',
-    'email': 'reservations@grandhaven.example',
+    'email': 'grandhavenhotel@gmail.com',
 }
 
 

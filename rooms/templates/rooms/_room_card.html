@@ -1,26 +1,74 @@
+{% load static %}
+
 <article class="rm-card{% if not room.is_available %} is-unavailable{% endif %}">
-    <a href="{{ room.get_absolute_url }}{% if booking_params %}?{{ booking_params }}{% endif %}" class="rm-card__media">
-        {% if room.image %}
-            <img src="{{ room.image.url }}" alt="Room {{ room.room_number }} – {{ room.get_room_type_display }}" loading="lazy">
-        {% else %}
-            <div class="rm-placeholder rm-placeholder--{{ room.room_type }}">
-                <span>{{ room.get_room_type_display }}</span>
-            </div>
+
+    <a href="{{ room.get_absolute_url }}{% if booking_params %}?{{ booking_params }}{% endif %}"
+       class="rm-card__media">
+
+        {% if room.get_room_type_display == "Standard Room" %}
+            <img src="{% static 'rooms/standard.jpg' %}?v=5"
+                 alt="Room {{ room.room_number }}">
+
+        {% elif room.get_room_type_display == "Deluxe Room" %}
+            <img src="{% static 'rooms/deluxe.jpg' %}?v=5"
+                 alt="Room {{ room.room_number }}">
+
+        {% elif room.get_room_type_display == "Suite" %}
+            <img src="{% static 'rooms/suite.jpg' %}?v=5"
+                 alt="Room {{ room.room_number }}">
+
+        {% elif room.get_room_type_display == "Family Room" %}
+            <img src="{% static 'rooms/family.jpg' %}?v=5"
+                 alt="Room {{ room.room_number }}">
+
         {% endif %}
-        <span class="rm-badge {% if room.is_available %}rm-badge--ok{% else %}rm-badge--no{% endif %}">
-            {% if room.is_available %}Available{% else %}Unavailable{% endif %}
+
+        <span class="rm-badge {% if room.is_available %}rm-badge--ok{% else %}rm-badge--off{% endif %}">
+            {% if room.is_available %}
+                Available
+            {% else %}
+                Unavailable
+            {% endif %}
         </span>
+
     </a>
+
     <div class="rm-card__body">
-        <p class="rm-eyebrow">{{ room.get_room_type_display }}</p>
-        <h3 class="rm-card__title"><a href="{{ room.get_absolute_url }}{% if booking_params %}?{{ booking_params }}{% endif %}">Room {{ room.room_number }}</a></h3>
-        <p class="rm-card__text">{{ room.description|truncatewords:18 }}</p>
+
+        <p class="rm-eyebrow">
+            {{ room.get_room_type_display }}
+        </p>
+
+        <h3 class="rm-card__title">
+            <a href="{{ room.get_absolute_url }}">
+                Room {{ room.room_number }}
+            </a>
+        </h3>
+
+        <p class="rm-card__text">
+            {{ room.description|truncatewords:18 }}
+        </p>
+
         <ul class="rm-meta">
-            <li>👤 Up to {{ room.capacity }} guest{{ room.capacity|pluralize }}</li>
+            <li>
+                👤 Up to {{ room.capacity }} guest{{ room.capacity|pluralize }}
+            </li>
         </ul>
+
         <div class="rm-card__footer">
-            <p class="rm-price">₱{{ room.price_per_night|floatformat:"2g" }} <span>/ night</span></p>
-            <a href="{{ room.get_absolute_url }}{% if booking_params %}?{{ booking_params }}{% endif %}" class="rm-btn rm-btn--outline">View details</a>
+
+            <p class="rm-price">
+                ₱{{ room.price_per_night|floatformat:"2" }}
+                <small>/ night</small>
+            </p>
+
+            <a href="{{ room.get_absolute_url }}{% if booking_params %}?{{ booking_params }}{% endif %}"
+               class="rm-btn">
+                View details
+            </a>
+
         </div>
+
     </div>
+
 </article>
